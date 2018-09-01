@@ -1,4 +1,4 @@
-.pdf
-.csv
-.zip
-.xlsx
+*.pdf
+*.csv
+*.zip
+*.xlsx
