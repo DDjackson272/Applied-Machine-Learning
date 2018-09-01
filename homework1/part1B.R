@@ -4,7 +4,7 @@ colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_
 rows_to_delete <- vector()
 count <- 1
 for (i in 1:nrow(data)){
-  if (data[i,]$feat_a == 0 || data[i,]$feat_d == 0 || data[i,]$feat_f == 0 || data[i,]$feat_h == 0){
+  if (data[i,]$feat_c == 0 || data[i,]$feat_d == 0 || data[i,]$feat_f == 0 || data[i,]$feat_h == 0){
     rows_to_delete[count] <- i
     count <- count + 1
   }
