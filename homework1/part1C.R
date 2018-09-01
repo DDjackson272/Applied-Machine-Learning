@@ -4,7 +4,7 @@ data <- read.table("pima-indians-diabetes.csv",sep = ',')
 colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_g","feat_h","res")
 
 start <- 1
-end <- 77
+end <- round(nrow(data)/10)
 total_acc <- 0
 for (i in 1:10){
   eva_data = data[start:end,]
@@ -21,10 +21,10 @@ for (i in 1:10){
   
   total_acc <- total_acc + ratio
   
-  start <- start + 77
-  end <- end + 77
-  if(end > 767)
-    end <- 767
+  start <- start + round(nrow(data)/10)
+  end <- end + round(nrow(data)/10)
+  if(end > nrow(data))
+    end <- nrow(data)
 }
 
 print(total_acc/10)
