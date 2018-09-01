@@ -1,9 +1,19 @@
 library(caret)
 data <- read.table("pima-indians-diabetes.csv",sep = ',')
 colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_g","feat_h","res")
+rows_to_delete <- vector()
+count <- 1
+for (i in 1:nrow(data)){
+  if (data[i,]$feat_a == 0 || data[i,]$feat_d == 0 || data[i,]$feat_f == 0 || data[i,]$feat_h == 0){
+    rows_to_delete[count] <- i
+    count <- count + 1
+  }
+}
+
+data <- data[-rows_to_delete,]
 
 start <- 1
-end <- 77
+end <- round(nrow(data)/10)
 total_acc <- 0
 for (i in 1:10){
   eva_data <- data[start:end,]
@@ -70,7 +80,7 @@ for (i in 1:10){
     if(y>n){
       pred[i] <- c("TRUE")
     } else {
-      pred[i] <- ("FALSE")
+      pred[i] <- c("FALSE")
     }
   }
   
@@ -82,10 +92,10 @@ for (i in 1:10){
   
   total_acc <- total_acc + ratio
   
-  start <- start + 77
-  end <- end + 77
-  if(end > 767)
-    end <- 767
+  start <- start + round(nrow(data)/10)
+  end <- end + round(nrow(data)/10)
+  if(end > nrow(data))
+    end <- nrow(data)
 }
 
 print(total_acc/10)
