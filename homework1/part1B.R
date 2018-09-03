@@ -4,13 +4,19 @@ colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_
 rows_to_delete <- vector()
 count <- 1
 for (i in 1:nrow(data)){
-  if (data[i,]$feat_c == 0 || data[i,]$feat_d == 0 || data[i,]$feat_f == 0 || data[i,]$feat_h == 0){
-    rows_to_delete[count] <- i
-    count <- count + 1
+  if (data[i,]$feat_c == 0){
+    data[i,]$feat_c <- NA    
+  } 
+  if(data[i,]$feat_d == 0){
+    data[i,]$feat_d <- NA
+  } 
+  if(data[i,]$feat_f == 0){
+    data[i,]$feat_f <- NA
+  } 
+  if(data[i,]$feat_h == 0){
+    data[i,]$feat_h <- NA
   }
 }
-
-data <- data[-rows_to_delete,]
 
 start <- 1
 end <- round(nrow(data)/10)
@@ -36,47 +42,62 @@ for (i in 1:10){
   feat_b_y_sd <- sd(train_data[ind_y,]$feat_b)
   feat_b_n_sd <- sd(train_data[ind_n,]$feat_b)
   
-  feat_c_y_mean <- mean(train_data[ind_y,]$feat_c)
-  feat_c_n_mean <- mean(train_data[ind_n,]$feat_c)
-  feat_c_y_sd <- sd(train_data[ind_y,]$feat_c)
-  feat_c_n_sd <- sd(train_data[ind_n,]$feat_c)
+  feat_c_y_mean <- mean(train_data[ind_y,]$feat_c, na.rm=TRUE)
+  feat_c_n_mean <- mean(train_data[ind_n,]$feat_c, na.rm=TRUE)
+  feat_c_y_sd <- sd(train_data[ind_y,]$feat_c, na.rm=TRUE)
+  feat_c_n_sd <- sd(train_data[ind_n,]$feat_c, na.rm=TRUE)
   
-  feat_d_y_mean <- mean(train_data[ind_y,]$feat_d)
-  feat_d_n_mean <- mean(train_data[ind_n,]$feat_d)
-  feat_d_y_sd <- sd(train_data[ind_y,]$feat_d)
-  feat_d_n_sd <- sd(train_data[ind_n,]$feat_d)
+  feat_d_y_mean <- mean(train_data[ind_y,]$feat_d, na.rm=TRUE)
+  feat_d_n_mean <- mean(train_data[ind_n,]$feat_d, na.rm=TRUE)
+  feat_d_y_sd <- sd(train_data[ind_y,]$feat_d, na.rm=TRUE)
+  feat_d_n_sd <- sd(train_data[ind_n,]$feat_d, na.rm=TRUE)
   
   feat_e_y_mean <- mean(train_data[ind_y,]$feat_e)
   feat_e_n_mean <- mean(train_data[ind_n,]$feat_e)
   feat_e_y_sd <- sd(train_data[ind_y,]$feat_e)
   feat_e_n_sd <- sd(train_data[ind_n,]$feat_e)
   
-  feat_f_y_mean <- mean(train_data[ind_y,]$feat_f)
-  feat_f_n_mean <- mean(train_data[ind_n,]$feat_f)
-  feat_f_y_sd <- sd(train_data[ind_y,]$feat_f)
-  feat_f_n_sd <- sd(train_data[ind_n,]$feat_f)
+  feat_f_y_mean <- mean(train_data[ind_y,]$feat_f, na.rm=TRUE)
+  feat_f_n_mean <- mean(train_data[ind_n,]$feat_f, na.rm=TRUE)
+  feat_f_y_sd <- sd(train_data[ind_y,]$feat_f, na.rm=TRUE)
+  feat_f_n_sd <- sd(train_data[ind_n,]$feat_f, na.rm=TRUE)
   
   feat_g_y_mean <- mean(train_data[ind_y,]$feat_g)
   feat_g_n_mean <- mean(train_data[ind_n,]$feat_g)
   feat_g_y_sd <- sd(train_data[ind_y,]$feat_g)
   feat_g_n_sd <- sd(train_data[ind_n,]$feat_g)
   
-  feat_h_y_mean <- mean(train_data[ind_y,]$feat_h)
-  feat_h_n_mean <- mean(train_data[ind_n,]$feat_h)
-  feat_h_y_sd <- sd(train_data[ind_y,]$feat_h)
-  feat_h_n_sd <- sd(train_data[ind_n,]$feat_h)
+  feat_h_y_mean <- mean(train_data[ind_y,]$feat_h, na.rm=TRUE)
+  feat_h_n_mean <- mean(train_data[ind_n,]$feat_h, na.rm=TRUE)
+  feat_h_y_sd <- sd(train_data[ind_y,]$feat_h, na.rm=TRUE)
+  feat_h_n_sd <- sd(train_data[ind_n,]$feat_h, na.rm=TRUE)
+  
   pred <- c()
   for (i in 1:nrow(test_data)){
     y <- dnorm(test_data[i,]$feat_a,feat_a_y_mean,feat_a_y_sd,log=T)+dnorm(test_data[i,]$feat_b,feat_b_y_mean,feat_b_y_sd,log=T)+
-      dnorm(test_data[i,]$feat_c,feat_c_y_mean,feat_c_y_sd,log=T)+dnorm(test_data[i,]$feat_d,feat_d_y_mean,feat_d_y_sd,log=T)+
-      dnorm(test_data[i,]$feat_e,feat_e_y_mean,feat_e_y_sd,log=T)+dnorm(test_data[i,]$feat_f,feat_f_y_mean,feat_f_y_sd,log=T)+
-      dnorm(test_data[i,]$feat_g,feat_g_y_mean,feat_g_y_sd,log=T)+dnorm(test_data[i,]$feat_h,feat_h_y_mean,feat_h_y_sd,log=T)+
+      dnorm(test_data[i,]$feat_g,feat_g_y_mean,feat_g_y_sd,log=T)+dnorm(test_data[i,]$feat_e,feat_e_y_mean,feat_e_y_sd,log=T)+
       log(p_y)
+    if (!is.na(dnorm(test_data[i,]$feat_c,feat_c_y_mean,feat_c_y_sd,log=T)))
+      y <- y + dnorm(test_data[i,]$feat_c,feat_c_y_mean,feat_c_y_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_d,feat_d_y_mean,feat_d_y_sd,log=T)))
+      y <- y + dnorm(test_data[i,]$feat_d,feat_d_y_mean,feat_d_y_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_f,feat_f_y_mean,feat_f_y_sd,log=T)))
+      y <- y + dnorm(test_data[i,]$feat_f,feat_f_y_mean,feat_f_y_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_h,feat_h_y_mean,feat_h_y_sd,log=T)))
+      y <- y + dnorm(test_data[i,]$feat_h,feat_h_y_mean,feat_h_y_sd,log=T)
+    
     n <- dnorm(test_data[i,]$feat_a,feat_a_n_mean,feat_a_n_sd,log=T)+dnorm(test_data[i,]$feat_b,feat_b_n_mean,feat_b_n_sd,log=T)+
-      dnorm(test_data[i,]$feat_c,feat_c_n_mean,feat_c_n_sd,log=T)+dnorm(test_data[i,]$feat_d,feat_d_n_mean,feat_d_n_sd,log=T)+
-      dnorm(test_data[i,]$feat_e,feat_e_n_mean,feat_e_n_sd,log=T)+dnorm(test_data[i,]$feat_f,feat_f_n_mean,feat_f_n_sd,log=T)+
-      dnorm(test_data[i,]$feat_g,feat_g_n_mean,feat_g_n_sd,log=T)+dnorm(test_data[i,]$feat_h,feat_h_n_mean,feat_h_n_sd,log=T)+
+      dnorm(test_data[i,]$feat_e,feat_e_n_mean,feat_e_n_sd,log=T)+dnorm(test_data[i,]$feat_g,feat_g_n_mean,feat_g_n_sd,log=T)+
       log(p_n)
+    if (!is.na(dnorm(test_data[i,]$feat_c,feat_c_n_mean,feat_c_n_sd,log=T)))
+      n <- n + dnorm(test_data[i,]$feat_c,feat_c_n_mean,feat_c_n_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_d,feat_d_n_mean,feat_d_n_sd,log=T)))
+      n <- n + dnorm(test_data[i,]$feat_d,feat_d_n_mean,feat_d_n_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_f,feat_f_n_mean,feat_f_n_sd,log=T)))
+      n <- n + dnorm(test_data[i,]$feat_f,feat_f_n_mean,feat_f_n_sd,log=T)
+    if (!is.na(dnorm(test_data[i,]$feat_h,feat_h_n_mean,feat_h_n_sd,log=T)))
+      n <- n + dnorm(test_data[i,]$feat_h,feat_h_n_mean,feat_h_n_sd,log=T)
+      
     if(y>n){
       pred[i] <- c("TRUE")
     } else {
