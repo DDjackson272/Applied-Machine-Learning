@@ -57,15 +57,15 @@ for (i in 1:10){
   feat_h_n_sd <- sd(train_data[ind_n,]$feat_h)
   pred <- c()
   for (i in 1:nrow(test_data)){
-    y <- pnorm(test_data[i,]$feat_a,feat_a_y_mean,feat_a_y_sd,log.p=T)+pnorm(test_data[i,]$feat_b,feat_b_y_mean,feat_b_y_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_c,feat_c_y_mean,feat_c_y_sd,log.p=T)+pnorm(test_data[i,]$feat_d,feat_d_y_mean,feat_d_y_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_e,feat_e_y_mean,feat_e_y_sd,log.p=T)+pnorm(test_data[i,]$feat_f,feat_f_y_mean,feat_f_y_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_g,feat_g_y_mean,feat_g_y_sd,log.p=T)+pnorm(test_data[i,]$feat_h,feat_h_y_mean,feat_h_y_sd,log.p=T)+
+    y <- dnorm(test_data[i,]$feat_a,feat_a_y_mean,feat_a_y_sd,log=T)+dnorm(test_data[i,]$feat_b,feat_b_y_mean,feat_b_y_sd,log=T)+
+      dnorm(test_data[i,]$feat_c,feat_c_y_mean,feat_c_y_sd,log=T)+dnorm(test_data[i,]$feat_d,feat_d_y_mean,feat_d_y_sd,log=T)+
+      dnorm(test_data[i,]$feat_e,feat_e_y_mean,feat_e_y_sd,log=T)+dnorm(test_data[i,]$feat_f,feat_f_y_mean,feat_f_y_sd,log=T)+
+      dnorm(test_data[i,]$feat_g,feat_g_y_mean,feat_g_y_sd,log=T)+dnorm(test_data[i,]$feat_h,feat_h_y_mean,feat_h_y_sd,log=T)+
       log(p_y)
-    n <- pnorm(test_data[i,]$feat_a,feat_a_n_mean,feat_a_n_sd,log.p=T)+pnorm(test_data[i,]$feat_b,feat_b_n_mean,feat_b_n_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_c,feat_c_n_mean,feat_c_n_sd,log.p=T)+pnorm(test_data[i,]$feat_d,feat_d_n_mean,feat_d_n_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_e,feat_e_n_mean,feat_e_n_sd,log.p=T)+pnorm(test_data[i,]$feat_f,feat_f_n_mean,feat_f_n_sd,log.p=T)+
-      pnorm(test_data[i,]$feat_g,feat_g_n_mean,feat_g_n_sd,log.p=T)+pnorm(test_data[i,]$feat_h,feat_h_n_mean,feat_h_n_sd,log.p=T)+
+    n <- dnorm(test_data[i,]$feat_a,feat_a_n_mean,feat_a_n_sd,log=T)+dnorm(test_data[i,]$feat_b,feat_b_n_mean,feat_b_n_sd,log=T)+
+      dnorm(test_data[i,]$feat_c,feat_c_n_mean,feat_c_n_sd,log=T)+dnorm(test_data[i,]$feat_d,feat_d_n_mean,feat_d_n_sd,log=T)+
+      dnorm(test_data[i,]$feat_e,feat_e_n_mean,feat_e_n_sd,log=T)+dnorm(test_data[i,]$feat_f,feat_f_n_mean,feat_f_n_sd,log=T)+
+      dnorm(test_data[i,]$feat_g,feat_g_n_mean,feat_g_n_sd,log=T)+dnorm(test_data[i,]$feat_h,feat_h_n_mean,feat_h_n_sd,log=T)+
       log(p_n)
     if(y>n){
       pred[i] <- c("TRUE")
