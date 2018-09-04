@@ -1,8 +1,7 @@
 library(caret)
 data <- read.table("pima-indians-diabetes.csv",sep = ',')
 colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_g","feat_h","res")
-rows_to_delete <- vector()
-count <- 1
+
 for (i in 1:nrow(data)){
   if (data[i,]$feat_c == 0){
     data[i,]$feat_c <- NA    
