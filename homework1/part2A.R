@@ -10,6 +10,7 @@ sc <- spark_connect(master = "local")
 image_train_data <- read.table("train.csv", sep = ',')
 image_test_data <- read.table("val.csv", sep=",")
 
+
 # Delete unwanted data column
 image_train_data <- image_train_data[-1]
 
@@ -27,10 +28,11 @@ image_test_data <- image_test_data[-1,]
 image_train_data[image_train_data <= 127] <- 0
 image_train_data[image_train_data >= 128] <- 1 
 image_test_data[image_test_data <= 127] <- 0
-image_test_data[image_test_data >= 128] <- 1 
+image_test_data[image_test_data >= 128] <- 1
 
 # Resizing function that resize and strech the image
 resizingFunc <- function(inputdata){
+  print("Start truncating vector!")
   # Resizing from 28*28 to 20*20
   col_to_delete <- vector()
   count <- 1
@@ -46,42 +48,60 @@ resizingFunc <- function(inputdata){
   boundingData <- inputdata[-col_to_delete]
   colnames(boundingData) <- c(0:400)
   colnames(boundingData)[1] <- "Number"
+  
+  print("Start stretching vector!")
+  
   # Stretch the image
-# 
-#   for (j in 2:nrow(boundingData)){
-#     min_col <- 20
-#     max_col <- 0
-#     min_row <- 20
-#     max_row <- 0
-#     for (i in 2:length(boundingData[1,])){
-#       row <- floor((i-2)/20)
-#       col <- (i-2) %% 20
-#       if (boundingData[j,][i] == 1){
-#         if (row <= min_row)
-#           min_row <- row
-#         else if (row >= max_row)
-#           max_row <- row
-#         if (col <= min_col)
-#           min_col <- col
-#         else if (col >= max_col)
-#           max_col <- col
-#       }
-#     }
-#     # row_a <- 20/(max_row-min_row)
-#     # col_a <- 20/(max_col-min_col)
-#     # row_b <- 20/(min_row-max_row)
-#     # col_b <- 20/(min_col-max_col)
-#     # for (i in 2:length(boundingData[1,])){
-#     #   row <- floor((i-2)/20)
-#     #   col <- (i-2) %% 20
-#     #   if (boundingData[j,][i]==1){
-#     #     row_after <- round(row*row_a + row_b)
-#     #     col_after <- round(col*col_a + col_b)
-#     #     boundingData[j,][row_after * 20 + col_after] <- 1
-#     #   }
-#     # }
-#   }
-
+  max_col <- 1
+  min_col <- 20
+  max_row <- 1
+  min_row <- 20
+  for (k in 1:nrow(boundingData)){
+    print(k)
+    image_1 <- boundingData[k,][2:401]
+    max_col <- 1
+    min_col <- 20
+    max_row <- 1
+    min_row <- 20
+    for (i in 1:20){
+      for (j in 1:20){
+        if(image_1[[(i-1)*20+j]] == 1){
+          if (i < min_row)
+            min_row <- i
+          if (i > max_row)
+            max_row <- i
+          if (j < min_col)
+            min_col <- j
+          if (j > max_col)
+            max_col <- j 
+        }
+      }
+    }
+    
+    row_a <- 20/(max_row-min_row)
+    row_b <- 20*min_row/(min_row-max_row)
+    col_a <- 20/(max_col-min_col)
+    col_b <- 20*min_col/(min_col-max_col)
+    
+    for (i in 1:20){
+      for (j in 1:20){
+        if(image_1[[(i-1)*20+j]] == 1){
+          end_y <- round(col_a*j+col_b)
+          if (end_y < 1 || end_y > 20)
+            end_y <- j
+          image_1[[(i-1)*20+end_y]] <- 1
+          end_x <- round(row_a*i+row_b)
+          if (end_x < 1 || end_x > 20)
+            end_x <- i
+          image_1[[(end_x-1)*20+j]] <- 1
+        }
+      }
+    }
+    
+    boundingData[k,][2:401] <- image_1
+  }
+  
+  
   return(boundingData)
 }
 
@@ -98,9 +118,20 @@ resizingFunc <- function(inputdata){
 
 # Gaussian & streched bounding (28*28 -> 20*20)
 
-# resizing bounding first
-# image_train_data <- resizingFunc(image_train_data)
-# image_test_data <- resizingFunc(image_test_data)
+# # resizing bounding first
+# image_train_data <- read.table("train_stretched.csv", sep=",")
+# image_test_data <- read.table("test_stretched.csv", sep=",")
+# 
+# # rename the colname
+# colnames(image_train_data) <- image_train_data[1,]
+# colnames(image_train_data)[1] <- "Number"
+# colnames(image_test_data) <- image_test_data[1,]
+# colnames(image_train_data)[1] <- "Number"
+# 
+# # delete unwanted columns
+# image_train_data <- image_train_data[-1,]
+# image_test_data <- image_test_data[-1,]
+# 
 # image_model <- naiveBayes(Number~., data=image_train_data)
 # image_pred <- predict(image_model, newdata=image_test_data)
 # image_table <- table(actual=image_test_data[,1], predict=image_pred)
@@ -114,7 +145,7 @@ resizingFunc <- function(inputdata){
 
 # image_train_tbl <- copy_to(sc, image_train_data[1:30000,])
 # image_test_tbl <- copy_to(sc, image_test_data)
-# image_ber_model <- image_train_tbl %>% 
+# image_ber_model <- image_train_tbl %>%
 #   ml_naive_bayes(Number~., model_type="bernoulli")
 # image_ber_pred <- predict(image_ber_model, newdata=image_test_tbl)
 # image_ber_table <- table(actual=image_test_data[,1], predict=image_ber_pred)
@@ -126,11 +157,22 @@ resizingFunc <- function(inputdata){
 # Bernoulli & streched bounding (28*28 -> 20*20)
 
 # resizing bounding first
-image_train_data <- resizingFunc(image_train_data)
-image_test_data <- resizingFunc(image_test_data)
+image_train_data <- read.table("train_stretched.csv", sep=",")
+image_test_data <- read.table("test_stretched.csv", sep=",")
 
-image_train_tbl <- copy_to(sc, image_train_data[1:30000,])
-image_test_tbl <- copy_to(sc, image_test_data)
+# rename the colname
+colnames(image_train_data) <- image_train_data[1,]
+colnames(image_train_data)[1] <- "Number"
+colnames(image_test_data) <- image_test_data[1,]
+colnames(image_test_data)[1] <- "Number"
+
+# delete unwanted columns
+image_train_data <- image_train_data[-1,]
+image_test_data <- image_test_data[-1,]
+
+
+image_train_tbl <- copy_to(sc, image_train_data[1:30000,], overwrite = TRUE)
+image_test_tbl <- copy_to(sc, image_test_data, overwrite = TRUE)
 image_ber_model <- image_train_tbl %>%
   ml_naive_bayes(Number~., model_type="bernoulli")
 image_ber_pred <- predict(image_ber_model, newdata=image_test_tbl)
