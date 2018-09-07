@@ -44,7 +44,8 @@ resizingFunc <- function(inputdata){
   }
 
   boundingData <- inputdata[-col_to_delete]
-
+  colnames(boundingData) <- c(0:400)
+  colnames(boundingData)[1] <- "Number"
   # Stretch the image
 # 
 #   for (j in 2:nrow(boundingData)){
