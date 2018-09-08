@@ -8,26 +8,20 @@ sc <- spark_connect(master = "local")
 
 # Take in data
 image_train_data <- read.table("train.csv", sep = ',')
-image_test_data <- read.table("val.csv", sep=",")
-
-
-# Delete unwanted data column
-image_train_data <- image_train_data[-1]
+# image_test_data <- read.table("val.csv", sep=",")
 
 # Rename column of data frame
-colnames(image_train_data) <- image_train_data[1,]
-colnames(image_test_data) <- image_test_data[1,]
 colnames(image_train_data)[1] <- "Number"
-colnames(image_test_data)[1] <- "Number"
-
-# Delete unwanted data row
-image_train_data <- image_train_data[-1,]
-image_test_data <- image_test_data[-1,]
+# colnames(image_test_data)[1] <- "Number"
+colnames(image_train_data)[2:785] <- sprintf("pixel%d", 1:784)
+# colnames(image_test_data)[2:785] <- sprintf("pixel%d", 1:784)
+image_train_data$Number <- as.factor(image_train_data$Number)
+# image_test_data$Number <- as.factor(image_test_data$Number)
 
 # Set a threshold (127)
 image_train_data[image_train_data <= 127] <- 0
 image_train_data[image_train_data >= 128] <- 1 
-image_test_data[image_test_data <= 127] <- 0
+# image_test_data[image_test_data <= 127] <- 0
 image_test_data[image_test_data >= 128] <- 1
 
 # Resizing function that resize and strech the image
@@ -107,10 +101,13 @@ resizingFunc <- function(inputdata){
 
 
 # Gaussian & untouched
-
+# image_res_data <- read.table("test.csv", sep=",")
+# colnames(image_res_data) <- sprintf("pixel%d", 1:784)
+# image_res_data[image_res_data <= 127] <- 0
+# image_res_data[image_res_data >= 128] <- 1
 # image_model <- naiveBayes(Number~., data=image_train_data)
-# image_pred <- predict(image_model, newdata=image_test_data)
-# image_table <- table(actual=image_test_data[,1], predict=image_pred)
+# image_pred <- predict(image_model, newdata=image_res_data)
+# image_table <- table(actual=image_test_data$Number, predict=image_pred)
 # ratio <- sum(diag(image_table))/sum(image_table)
 # 
 # print(image_table)
@@ -119,35 +116,29 @@ resizingFunc <- function(inputdata){
 # Gaussian & streched bounding (28*28 -> 20*20)
 
 # # resizing bounding first
-# image_train_data <- read.table("train_stretched.csv", sep=",")
-# image_test_data <- read.table("test_stretched.csv", sep=",")
-# 
-# # rename the colname
-# colnames(image_train_data) <- image_train_data[1,]
+# image_train_data <- read.table("train_stretched_noheader.csv", sep=",")
 # colnames(image_train_data)[1] <- "Number"
-# colnames(image_test_data) <- image_test_data[1,]
-# colnames(image_train_data)[1] <- "Number"
-# 
-# # delete unwanted columns
-# image_train_data <- image_train_data[-1,]
-# image_test_data <- image_test_data[-1,]
+# colnames(image_train_data)[2:401] <- sprintf("pixel%d", 1:400)
+# image_train_data$Number <- as.factor(image_train_data$Number)
+# image_res_data <- read.table("test_stretched2.csv", sep=",")
+# colnames(image_res_data) <- sprintf("pixel%d", 1:400)
 # 
 # image_model <- naiveBayes(Number~., data=image_train_data)
-# image_pred <- predict(image_model, newdata=image_test_data)
-# image_table <- table(actual=image_test_data[,1], predict=image_pred)
-# ratio <- sum(diag(image_table))/sum(image_table)
-# 
-# print(image_table)
-# print(ratio)
+# image_pred <- predict(image_model, newdata=image_res_data)
 
 
 # Bernoulli & untouched
-
+# 
+# image_res_data <- read.table("test.csv", sep=",")
+# colnames(image_res_data) <- sprintf("pixel%d", 1:784)
+# image_res_data[image_res_data <= 127] <- 0
+# image_res_data[image_res_data >= 128] <- 1
+# 
 # image_train_tbl <- copy_to(sc, image_train_data[1:30000,])
-# image_test_tbl <- copy_to(sc, image_test_data)
+# image_res_tbl <- copy_to(sc, image_res_data)
 # image_ber_model <- image_train_tbl %>%
 #   ml_naive_bayes(Number~., model_type="bernoulli")
-# image_ber_pred <- predict(image_ber_model, newdata=image_test_tbl)
+# image_ber_pred <- predict(image_ber_model, newdata=image_res_tbl)
 # image_ber_table <- table(actual=image_test_data[,1], predict=image_ber_pred)
 # ratio <- sum(diag(image_ber_table))/sum(image_ber_table)
 # 
@@ -156,28 +147,21 @@ resizingFunc <- function(inputdata){
 
 # Bernoulli & streched bounding (28*28 -> 20*20)
 
-# resizing bounding first
-image_train_data <- read.table("train_stretched.csv", sep=",")
-image_test_data <- read.table("test_stretched.csv", sep=",")
-
-# rename the colname
-colnames(image_train_data) <- image_train_data[1,]
+image_train_data <- read.table("train_stretched_noheader.csv", sep=",")
 colnames(image_train_data)[1] <- "Number"
-colnames(image_test_data) <- image_test_data[1,]
-colnames(image_test_data)[1] <- "Number"
-
-# delete unwanted columns
-image_train_data <- image_train_data[-1,]
-image_test_data <- image_test_data[-1,]
-
+colnames(image_train_data)[2:401] <- sprintf("pixel%d", 1:400)
+image_train_data$Number <- as.factor(image_train_data$Number)
+image_res_data <- read.table("test_stretched2.csv", sep=",")
+colnames(image_res_data) <- sprintf("pixel%d", 1:400)
 
 image_train_tbl <- copy_to(sc, image_train_data[1:30000,], overwrite = TRUE)
-image_test_tbl <- copy_to(sc, image_test_data, overwrite = TRUE)
+image_res_tbl <- copy_to(sc, image_res_data, overwrite = TRUE)
 image_ber_model <- image_train_tbl %>%
   ml_naive_bayes(Number~., model_type="bernoulli")
-image_ber_pred <- predict(image_ber_model, newdata=image_test_tbl)
-image_ber_table <- table(actual=image_test_data[,1], predict=image_ber_pred)
-ratio <- sum(diag(image_ber_table))/sum(image_ber_table)
+image_ber_pred <- predict(image_ber_model, newdata=image_res_tbl)
+# image_ber_table <- table(actual=image_test_data[,1], predict=image_ber_pred)
+# ratio <- sum(diag(image_ber_table))/sum(image_ber_table)
+# 
+# print(image_ber_table)
+# print(ratio)
 
-print(image_ber_table)
-print(ratio)
