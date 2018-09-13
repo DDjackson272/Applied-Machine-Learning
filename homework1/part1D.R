@@ -1,7 +1,11 @@
 library(caret)
 library(klaR)
 data <- read.table("pima-indians-diabetes.csv",sep = ',')
-colnames(data) <- c("feat_a","feat_b","feat_c","feat_d","feat_e","feat_f","feat_g","feat_h","res")
+colnames(data) <- c("feat_a","feat_b",
+                    "feat_c","feat_d",
+                    "feat_e","feat_f",
+                    "feat_g","feat_h",
+                    "res")
 
 start <- 1
 end <- round(nrow(data)/10)
