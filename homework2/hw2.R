@@ -44,16 +44,12 @@ b <- 1
 
 Ns <- 300
 step <- 50
-lambda <- 1
+lambda <- 10**-7
 
 for (i in 1:Ns){
-  g_s <- 1/0.01*i+50
-  index <- createDataPartition(val_train$V15, times=1, p=0.9, list=F)
-  train_part <- val_train[index,]
-  valid_part <- val_train[-index,]
+  g_s <- 1/(0.01*i+50)
   for (j in 1:step){
-    r <- train_part[round(runif(1)*nrow(train_part)),]
-    print(as.integer(r$V15)*(sum(a*r[1:14])+b))
+    r <- val_train[round(runif(1)*nrow(val_train)),]
     if (as.integer(r$V15)*(sum(a*r[1:14])+b) >= 1){
       a <- a - g_s*lambda*a
       b <- b
@@ -63,19 +59,18 @@ for (i in 1:Ns){
     }
   }
   pred <- c()
-  for (k in 1:nrow(valid_part)){
-    if (sum(a*valid_part[k,][1:14])+b > 0)
+  for (k in 1:nrow(val_test)){
+    if (sum(a*val_test[k,][1:14])+b > 0)
       pred[k] <- 1
     else
       pred[k] <- -1
   }
-  table <- table(actual=valid_part$V15, predict=pred)
+  print(sum(a*a))
+  table <- table(actual=as.factor(val_test$V15), predict=as.factor(pred))
   ratio <- sum(diag(table))/sum(table)
   print(table)
   print(ratio)
 }
-
-
 # model <- naiveBayes(V15~., data=val_train, na.rm=T)
 # pred <- predict(model, newdata=val_test)
 # nb_table <- table(actual=val_test$V15, predict=pred)
