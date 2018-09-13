@@ -1,5 +1,6 @@
 library(caret)
 library(e1071)
+library(pracma)
 setwd("C:\\Users\\acdjackson\\Desktop\\CS498\\homework2")
 train_data = read.table("train.csv", sep=",")
 test_data = read.table("test.csv", sep=",")
@@ -12,7 +13,6 @@ translate_data <- function(input_data){
       for (j in 1:length(lev)){
         target <- as.character(lev[j])
         input_data[[sprintf("V%d", i)]] <- as.character(input_data[[sprintf("V%d", i)]])
-        input_data[[sprintf("V%d", i)]][which(input_data[[sprintf("V%d", i)]]==" ?")] <- NA
         input_data[[sprintf("V%d", i)]][which(input_data[[sprintf("V%d", i)]]==target)] <- j
       }
     }
@@ -20,10 +20,8 @@ translate_data <- function(input_data){
     
     # normalizing input data
     if (i != 15){
-      mean <- mean(input_data[[sprintf("V%d", i)]], na.rm=T)
-      print(mean)
-      sd <- sd(input_data[[sprintf("V%d", i)]], na.rm=T)
-      print(sd)
+      mean <- mean(input_data[[sprintf("V%d", i)]])
+      sd <- sd(input_data[[sprintf("V%d", i)]])
       input_data[[sprintf("V%d", i)]] <- (input_data[[sprintf("V%d", i)]]-mean)/sd
     }
   }
@@ -41,6 +39,41 @@ val_train <- train_data[ind,]
 val_test <- train_data[-ind,]
 
 
+a <- c(1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+b <- 1
+
+Ns <- 300
+step <- 50
+lambda <- 1
+
+for (i in 1:Ns){
+  g_s <- 1/0.01*i+50
+  index <- createDataPartition(val_train$V15, times=1, p=0.9, list=F)
+  train_part <- val_train[index,]
+  valid_part <- val_train[-index,]
+  for (j in 1:step){
+    r <- train_part[round(runif(1)*nrow(train_part)),]
+    print(as.integer(r$V15)*(sum(a*r[1:14])+b))
+    if (as.integer(r$V15)*(sum(a*r[1:14])+b) >= 1){
+      a <- a - g_s*lambda*a
+      b <- b
+    } else {
+      a <- a - g_s*(lambda*a - as.integer(r$V15)*r[1:14])
+      b <- b + g_s * as.integer(r$V15)
+    }
+  }
+  pred <- c()
+  for (k in 1:nrow(valid_part)){
+    if (sum(a*valid_part[k,][1:14])+b > 0)
+      pred[k] <- 1
+    else
+      pred[k] <- -1
+  }
+  table <- table(actual=valid_part$V15, predict=pred)
+  ratio <- sum(diag(table))/sum(table)
+  print(table)
+  print(ratio)
+}
 
 
 # model <- naiveBayes(V15~., data=val_train, na.rm=T)
