@@ -16,21 +16,37 @@ translate_data <- function(input_data){
         input_data[[sprintf("V%d", i)]][which(input_data[[sprintf("V%d", i)]]==target)] <- j
       }
     }
+    input_data[[sprintf("V%d", i)]] <- as.numeric(input_data[[sprintf("V%d", i)]])
+    
+    # normalizing input data
+    if (i != 15){
+      mean <- mean(input_data[[sprintf("V%d", i)]], na.rm=T)
+      print(mean)
+      sd <- sd(input_data[[sprintf("V%d", i)]], na.rm=T)
+      print(sd)
+      input_data[[sprintf("V%d", i)]] <- (input_data[[sprintf("V%d", i)]]-mean)/sd
+    }
   }
   return (input_data)
 }
 
 train_data <- translate_data(train_data)
+train_data$V15 <- as.character(train_data$V15)
+train_data$V15[train_data$V15=="2"] <- "-1"
 train_data$V15 <- as.factor(train_data$V15)
 test_data <- translate_data(test_data)
+
 ind <- createDataPartition(train_data$V15, times=1, p=0.9, list=F)
 val_train <- train_data[ind,]
 val_test <- train_data[-ind,]
 
-model <- naiveBayes(V15~., data=val_train, na.rm=T)
-pred <- predict(model, newdata=val_test)
-nb_table <- table(actual=val_test$V15, predict=pred)
-ratio <- sum(diag(nb_table))/sum(nb_table)
 
-print(nb_table)
-print(ratio)
+
+
+# model <- naiveBayes(V15~., data=val_train, na.rm=T)
+# pred <- predict(model, newdata=val_test)
+# nb_table <- table(actual=val_test$V15, predict=pred)
+# ratio <- sum(diag(nb_table))/sum(nb_table)
+# 
+# print(nb_table)
+# print(ratio)
