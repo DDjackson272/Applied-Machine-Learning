@@ -1,7 +1,7 @@
 library(caret)
 library(e1071)
 library(pracma)
-setwd("C:\\Users\\acdjackson\\Desktop\\CS498\\homework2")
+setwd("/Users/hengzhe/Desktop/UIUC/CS-498-Applied-Machine-Learning/homework2")
 train_data = read.table("train.csv", sep=",")
 test_data = read.table("test.csv", sep=",")
 
