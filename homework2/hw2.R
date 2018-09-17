@@ -59,22 +59,23 @@ for (m in 1:length(lambda_list)){
         a <- a - g_s*(lambda*a - as.numeric(levels(r$V15)[r$V15])*r[c(1,3,5,11:13)])
         b <- b + g_s * as.numeric(levels(r$V15)[r$V15])
       }
+      if (j %% 30 == 0){
+        val_sample <- val_test[sample(1:nrow(val_test), 50),]
+        pred_sample <- c()
+        for (q in 1:nrow(val_sample)){
+          if(sum(a*val_sample[q,][c(1,3,5,11:13)])+b >= 0)
+            pred_sample[q] <- 1
+          else
+            pred_sample[q] <- -1
+        }
+        pred_sample_table <- table(actual=val_sample$V15, predict=pred_sample)
+        acc <- sum(diag(pred_sample_table))/sum(pred_sample_table)
+        x[countxy] <- (i-1)*step + j
+        y[countxy] <- acc
+        mag_a[countxy] <- sum(a*a)
+        countxy <- countxy + 1
+      }
     }
-    
-    # Test after the step-loop in each season, calculate the accuracy and magnitude of vector a. 
-    # pred_per_epoch <- c()
-    # for (k in 1:nrow(val_test)){
-    #   if (sum(a*val_test[k,][c(1,3,5,11:13)])+b >= 0)
-    #     pred_per_epoch[k] <- 1
-    #   else
-    #     pred_per_epoch[k] <- -1
-    # }
-    # pred_epoch_table <- table(actual=val_test$V15, predict=pred_per_epoch)
-    # acc <- sum(diag(pred_epoch_table))/sum(pred_epoch_table)
-    # x[countxy] <- i
-    # y[countxy] <- acc
-    # mag_a[countxy] <- sum(a*a)
-    # countxy <- countxy + 1
   } 
   
   # Calculate accuracy in different regularization constant and
@@ -87,6 +88,7 @@ for (m in 1:length(lambda_list)){
       pred[k] <- -1
   }
   pred_table <- table(actual=val_test$V15, predict=pred)
+  print(sum(diag(pred_table))/sum(pred_table))
   if (sum(diag(pred_table))/sum(pred_table) > accuracy){
     accuracy <- sum(diag(pred_table))/sum(pred_table)
     final_a <- a
@@ -95,25 +97,25 @@ for (m in 1:length(lambda_list)){
   }
 }
 
-# # Make data to be ploted
-# matx <- matrix(x,ncol=length(lambda_list))
-# maty <- matrix(y,ncol=length(lambda_list))
-# matMag_a <- matrix(mag_a,ncol=length(lambda_list))
-# 
-# #Plot the data
-# matplot(matx, maty, type = c("b"),pch=1,col = 1:4)
-# matplot(matMag_a, maty, type = c("b"),pch=1,col = 1:4) 
+# Make data to be ploted
+matx <- matrix(x,ncol=length(lambda_list))
+maty <- matrix(y,ncol=length(lambda_list))
+matMag_a <- matrix(mag_a,ncol=length(lambda_list))
+
+#Plot the data
+matplot(matx, maty, type = "l", pch=1,col = 1:4, ylim=c(0,1), lty=1, lwd=3)
+matplot(matx, matMag_a, type = "l", pch=1,col = 1:4, lty=1, lwd=3)
 
 # Predict data in test.csv.
-pred_test = c()
-example = c()
-for (i in 1:nrow(test_data)){
-  example[i] <- sprintf("'%d'", i-1)
-  if (sum(final_a*test_data[i,][c(1,3,5,11:13)])+final_b > 0)
-    pred_test[i] <- ">50K"
-  else
-    pred_test[i] <- "<=50K"
-}
-csv.data <- data.frame("Example"=example,
-                       "Label"=pred_test)
-write.csv(csv.data, file="res.csv", row.names = F)
+# pred_test = c()
+# example = c()
+# for (i in 1:nrow(test_data)){
+#   example[i] <- sprintf("'%d'", i-1)
+#   if (sum(final_a*test_data[i,][c(1,3,5,11:13)])+final_b > 0)
+#     pred_test[i] <- ">50K"
+#   else
+#     pred_test[i] <- "<=50K"
+# }
+# csv.data <- data.frame("Example"=example,
+#                        "Label"=pred_test)
+# write.csv(csv.data, file="res.csv", row.names = F)
