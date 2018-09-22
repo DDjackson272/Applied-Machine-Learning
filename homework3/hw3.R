@@ -10,7 +10,7 @@ iris.data4 <- read.table("./hw3-data/dataIV.csv", sep=",", header=T)
 iris.data5 <- read.table("./hw3-data/dataV.csv", sep=",", header=T)
 
 # Setting parameters here
-pc.number <- 4
+pc.number <- 0
 use.noiesless <- TRUE
 
 # Function that returns error
@@ -104,8 +104,8 @@ if (!use.noiesless){
 
 
 print(pc.number)
-print(get_err(x1, iris.data1))
-print(get_err(x2, iris.data2))
-print(get_err(x3, iris.data3))
-print(get_err(x4, iris.data4))
-print(get_err(x5, iris.data5))
+print(get_err(x1, iris.data))
+print(get_err(x2, iris.data))
+print(get_err(x3, iris.data))
+print(get_err(x4, iris.data))
+print(get_err(x5, iris.data))
