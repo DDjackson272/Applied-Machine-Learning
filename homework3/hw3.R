@@ -1,5 +1,4 @@
-library(rgl)
-library(gsubfn)
+
 # Setting working directory and taking in data
 setwd("/Users/hengzhe/Library/Mobile Documents/com~apple~CloudDocs/UIUC/CS-498-Applied-Machine-Learning/homework3")
 iris.data <- read.table("./hw3-data/iris.csv", sep=",", header=T)
@@ -10,8 +9,8 @@ iris.data4 <- read.table("./hw3-data/dataIV.csv", sep=",", header=T)
 iris.data5 <- read.table("./hw3-data/dataV.csv", sep=",", header=T)
 
 # Setting parameters here
-pc.number <- 0
-use.noiesless <- TRUE
+pc.number <- 2
+use.noiesless <- FALSE
 
 # Function that returns error
 get_err <- function(input_mat1, input_mat2){
