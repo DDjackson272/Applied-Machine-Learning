@@ -1,1 +1,8 @@
-
+*.pdf
+*.png
+.DS_Store
+.RData
+.Rhistory
+*.csv
+*.doc
+*.docx
