@@ -17,8 +17,8 @@ standup_chair <- list.files("./HMP_Dataset/Standup_chair")
 use_telephone <- list.files("./HMP_Dataset/Use_telephone")
 walk <- list.files("./HMP_Dataset/Walk")
 
-segment_length <- 16
-cluster_number <- 10
+segment_length <- 32
+cluster_number <- 480
 
 transform_data <- function(input_matrix, matrix_name){
   for (i in 1:nrow(input_matrix)){
@@ -59,7 +59,7 @@ build_feature_matrix <- function(all_data, file_folder, class_name){
     temp_matrix <- all_data[all_data[,"matrix_name"]==search_name,]
     feat <- vector(length=(cluster_number+1))
     for(j in 1:cluster_number){
-      feature_matrix[i,][j] <- round((nrow(temp_matrix[temp_matrix[, "res.hk$cluster"]==j,])/nrow(temp_matrix))*10)
+      feature_matrix[i,][j] <- round((nrow(temp_matrix[temp_matrix[, "res.hk$cluster"]==j,])/nrow(temp_matrix))*100)
     }
     feature_matrix[i,][cluster_number+1] <- class_name
   }
@@ -85,7 +85,7 @@ all_data <- rbind(brush_teeth_all, climb_stairs_all, comb_hair_all, #3
                   eat_soup_all, getup_bed_all, liedown_bed_all, pour_water_all, #4
                   sitdown_chair_all, standup_chair_all, use_telephone_all, walk_all) #4
 
-res.hk <- hkmeans(all_data[,1:(3*segment_length)], cluster_number)
+res.hk <- hkmeans(all_data[,1:(3*segment_length)], cluster_number, iter.max = 100)
 
 all_data <- cbind(all_data, res.hk$cluster)
 
@@ -126,9 +126,10 @@ for (i in 1:cluster_number){
     print(i)
 }
 
-model <- randomForest(action~., data=train_data, maxnodes=15, ntree=30)
+model <- randomForest(action~., data=train_data)
 pred <- predict(model, newdata=test_data)
 table <- table(actual=test_data$action, predict=pred)
 ratio <- sum(diag(table))/sum(table)
 print(table)
 print(ratio)
+
