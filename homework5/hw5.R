@@ -17,7 +17,7 @@ standup_chair <- list.files("./HMP_Dataset/Standup_chair")
 use_telephone <- list.files("./HMP_Dataset/Use_telephone")
 walk <- list.files("./HMP_Dataset/Walk")
 
-segment_length <- 32
+segment_length <- 16
 cluster_number <- 480
 
 transform_data <- function(input_matrix, matrix_name){
@@ -115,7 +115,7 @@ write.csv(df, file="feature_vector.csv", row.names=F)
 
 # training and predicting
 colnames(df)[cluster_number+1] <- "action"
-ind <- createDataPartition(df$action, times=1, p=0.8, list=F)
+ind <- createDataPartition(df$action, times=1, p=0.6, list=F)
 train_data <- df[ind,]
 test_data <- df[-ind,]
 
