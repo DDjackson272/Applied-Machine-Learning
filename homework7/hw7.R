@@ -24,8 +24,8 @@ mod <- cv.glmnet(x,y,family="poisson",alpha=1)
 plot(mod)
 
 # problem b
-fit1 <- predict(mod, x, s = "lambda.min")
-fit2 <- predict(mod, x, s = "lambda.1se")
+fit1 <- predict(mod, newx=x, "response", s = "lambda.min")
+fit2 <- predict(mod, newx=x, "response", s = "lambda.1se")
 plot(y, fit1, xlab="True value", ylab="Fitted value", 
      main="Fitted value vs True value")
 plot(y, fit2, xlab="True value", ylab="Fitted value", 
@@ -34,9 +34,10 @@ plot(y, fit2, xlab="True value", ylab="Fitted value",
 # problem c
 test_x <- as.matrix(test_blog[,1:280])
 test_y <- as.matrix(test_blog[,281])
-fit_test_1 <- predict(mod, test_x, s="lambda.min")
-fit_test_2 <- predict(mod, test_x, s="lambda.1se")
+fit_test_1 <- predict(mod, newx=test_x, "response", s="lambda.min")
+fit_test_2 <- predict(mod, newx=test_x, "response", s="lambda.1se")
 plot(test_y, fit_test_1, xlab="True value", ylab="Fitted value", 
      main="Fitted value vs True value")
 plot(test_y, fit_test_2, xlab="True value", ylab="Fitted value", 
      main="Fitted value vs True value")
+
