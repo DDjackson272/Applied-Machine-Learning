@@ -6,9 +6,9 @@ test2RGB <- readJPEG("test2.jpg")
 test3RGB <- readJPEG("test3.jpg")
 test4RGB <- readJPEG("test4.jpg")
 
-segments_value <- 50
+segments_value <- 20
 iter_time <- 20
-inputRGB <- test3RGB
+inputRGB <- test1RGB
 
 flatten_data <- function(input_matrix){
   data <- matrix(input_matrix[,,1], ncol=1)
@@ -23,8 +23,13 @@ inputCol <- ncol(inputRGB)
 
 # mvrnorm(n, mu, Sigma)
 # initialize all mu and Sigmas
-startPoint = kmeans(inputData, center=segments_value)
-mu <- array(startPoint$centers,dim=c(1,3,segments_value))
+startPoint = sample(1:nrow(inputData), segments_value)
+mu <- array(0, dim=c(1,3,segments_value))
+for (i in 1:segments_value){
+  mu[1,1,i] <- inputData[startPoint[i],]$X1
+  mu[1,2,i] <- inputData[startPoint[i],]$X2
+  mu[1,3,i] <- inputData[startPoint[i],]$X3
+}
 stds <- array(c(sd(inputData[,1], sd(inputData[,2], sd(inputData[,3])))),dim=c(1,3,segments_value))
 weights_r <- array(1/segments_value, dim=c(nrow(inputData), segments_value))
 weights_g <- array(1/segments_value, dim=c(nrow(inputData), segments_value))
@@ -36,8 +41,6 @@ flag = TRUE
 while(flag){
   mu_old <- mu
   std_old <- stds
-  # print(sprintf("%d th iteration inputData:", k))
-  # print(inputData[1:5,])
   for (i in 1:segments_value){
     priors_r[,i] <- dnorm(inputData[,1], mu[1,1,i], stds[1,1,i])
     priors_g[,i] <- dnorm(inputData[,2], mu[1,2,i], stds[1,2,i])
@@ -58,8 +61,10 @@ while(flag){
     stds[1,2,i] <- sqrt(sum((inputData[,2]-mu[1,2,i])**2 * weights_g[,i])/sum(weights_g[,i]))
     stds[1,3,i] <- sqrt(sum((inputData[,3]-mu[1,3,i])**2 * weights_b[,i])/sum(weights_b[,i]))
   }
-  print(abs(sum(mu)-sum(mu_old)))
-  if (abs(sum(mu)-sum(mu_old)) < 0.1){
+  diff = mu-mu_old
+  diff = sum(abs(diff))
+  print(diff)
+  if (diff < 0.1){
     flag = FALSE
   }
 }
@@ -89,3 +94,4 @@ recon[,,2] <- g
 recon[,,3] <- b
 
 writeJPEG(recon, "demo.jpg")
+print(startPoint)
