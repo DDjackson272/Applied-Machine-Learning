@@ -1,12 +1,12 @@
 # setwd("/Users/hengzhe/OneDrive - University of Illinois - Urbana/UIUC/CS498/homework9")
-# test_data <- read.table("./test_data.csv", sep=",")
+# # test_data <- read.table("./test_data.csv", sep=",")
 # train_data <- read.table("./train_data.csv", sep=",")
-# test_label <- read.table("./test_label.csv", sep=",")
-# train_label <- read.table("./train_label.csv", sep=",")
+# # test_label <- read.table("./test_label.csv", sep=",")
+# # train_label <- read.table("./train_label.csv", sep=",")
 # print("load done!")
 # 
-# test_data[test_data <= 127] <- -1
-# test_data[test_data >= 128] <- 1
+# # test_data[test_data <= 127] <- -1
+# # test_data[test_data >= 128] <- 1
 # train_data[train_data <= 127] <- -1
 # train_data[train_data >= 128] <- 1
 # print("binarilized done!")
@@ -21,14 +21,14 @@
 # }
 # print("flipped 2% of pixels done!")
 
-theta <- 2
+theta <- 0.2
 recon <- training_set_image
 
-H <- c(rep(0, 784))
 X <- training_set_image[1,]
+H <- X
 diff_count <- 0
 for (i in 1:784){
-  if (H[i] != train_data[1,i]){
+  if (H[,i] != train_data[1,i]){
     diff_count <- diff_count + 1
   }
 }
@@ -40,19 +40,19 @@ for (iter in 1:10){
       pos = (col-1) * 28 + row
       neighbour <- c(-1,-1,-1,-1)
       count <- 1
-      if (col-1 >= 1){
+      if (col-1 >= 1){ # up
         neighbour[count] <- (col-2)*28 + row
         count <- count + 1
       }
-      if (row-1 >= 1){
+      if (row-1 >= 1){ # left
         neighbour[count] <- (col-1)*28 +row-1
         count <- count + 1
       }
-      if (col + 1 <= 28){
+      if (col + 1 <= 28){ # down
         neighbour[count] <- col * 28 + row
         count <- count + 1
       }
-      if (row + 1 <= 28){
+      if (row + 1 <= 28){ # right
         neighbour[count] <- (col-1)*28 + row + 1
       }
       p1 <- 0
@@ -64,15 +64,15 @@ for (iter in 1:10){
         }
       }
       if (p1 < p2){
-        H[pos] = -1
+        H[,pos] = -1
       } else {
-        H[pos] = 1
+        H[,pos] = 1
       }
     }
   }
   diff_count <- 0
   for (i in 1:784){
-    if (H[i] != train_data[1,i]){
+    if (H[,i] != train_data[1,i]){
       diff_count <- diff_count + 1
     }
   }
