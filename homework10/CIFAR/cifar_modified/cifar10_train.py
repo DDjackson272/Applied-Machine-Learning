@@ -140,19 +140,10 @@ def train():
             def after_run(self, run_context, run_values):
                 if self._step % FLAGS.log_frequency == 0:
                     current_time = time.time()
-                    duration = current_time - self._start_time
                     self._start_time = current_time
 
-                    loss_value = run_values.results
-                    examples_per_sec = FLAGS.log_frequency * FLAGS.batch_size / duration
-                    sec_per_batch = float(duration / FLAGS.log_frequency)
-
-                    format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
-                                  'sec/batch)')
-                    print(format_str % (datetime.now(), self._step, loss_value,
-                                        examples_per_sec, sec_per_batch))
-
         for step in range(0, FLAGS.max_steps+1, FLAGS.log_frequency):
+            print(str(step))
             with tf.train.MonitoredTrainingSession(
                     checkpoint_dir=FLAGS.train_dir,
                     hooks=[tf.train.StopAtStepHook(last_step=step),
@@ -163,9 +154,9 @@ def train():
                 while not mon_sess.should_stop():
                     mon_sess.run(train_op)
             # evaluate test data
-            # cifar10_eval.evaluate()
+            cifar10_eval.evaluate()
             # evaluate train data
-            # evaluate()
+            evaluate()
 
 
 def main(argv=None):  # pylint: disable=unused-argument
