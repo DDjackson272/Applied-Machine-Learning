@@ -13,13 +13,13 @@ import cifar10
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '/tmp/cifar10_eval',
+tf.app.flags.DEFINE_string('eval_dir', '/tmp/cifar10/test',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10/train',
                            """Directory where to read model checkpoints.""")
-tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
+tf.app.flags.DEFINE_integer('eval_interval_secs', 5,
                             """How often to run the eval.""")
 tf.app.flags.DEFINE_integer('num_examples', 10000,
                             """Number of examples to run.""")
@@ -36,6 +36,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       summary_op: Summary op.
     """
     with tf.Session() as sess:
+
         ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
         if ckpt and ckpt.model_checkpoint_path:
             # Restores from checkpoint
@@ -50,8 +51,8 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
 
         # Start the queue runners.
         coord = tf.train.Coordinator()
+        threads = list()
         try:
-            threads = []
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
                 threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                                  start=True))
@@ -65,13 +66,13 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
                 true_count += np.sum(predictions)
                 step += 1
 
-            # Compute precision @ 1.
-            precision = true_count / total_sample_count
-            print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
+            # Compute accuracy
+            accuracy = true_count / total_sample_count
+            print('%s: test data accuracy = %.3f' % (datetime.now(), accuracy))
 
             summary = tf.Summary()
             summary.ParseFromString(sess.run(summary_op))
-            summary.value.add(tag='Precision @ 1', simple_value=precision)
+            summary.value.add(tag='accuracy', simple_value=accuracy)
             summary_writer.add_summary(summary, global_step)
         except Exception as e:  # pylint: disable=broad-except
             coord.request_stop(e)
@@ -105,11 +106,7 @@ def evaluate():
 
         summary_writer = tf.summary.FileWriter(FLAGS.eval_dir, g)
 
-        while True:
-            eval_once(saver, summary_writer, top_k_op, summary_op)
-            if FLAGS.run_once:
-                break
-            time.sleep(FLAGS.eval_interval_secs)
+        eval_once(saver, summary_writer, top_k_op, summary_op)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
