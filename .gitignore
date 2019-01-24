@@ -8,3 +8,5 @@
 *.docx
 MNIST-data
 .idea
+*.pyc
+*.zip
